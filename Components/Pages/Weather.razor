@@ -1,0 +1,165 @@
+﻿@page "/weather"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+@using WeatherFinal.Components.Models
+@using WeatherFinal.Components.Service
+@inject WeatherForecastService ForecastService
+@inject RegisterService RegisterService
+@inject NameOfUser NameOfUser
+@inject NavigationManager NavigationManager
+
+<PageTitle>Weather</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Weather forecast</MudText>
+<MudText Typo="Typo.h5" GutterBottom="true">Welcome, @NameOfUser.Name </MudText>
+
+<div style="display: flex; align-items: center;">
+    <MudTextField Label="City Name" @bind-Value="cityName" Variant="Variant.Outlined" Placeholder="Enter city name" Class="mb-3" Style="flex-grow: 1;" />
+
+    <MudIconButton Icon="@FavButtonIcon" Color="Color.Primary" OnClick="ToggleFavorite" />
+</div>
+
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="OnSub">Submit</MudButton>
+
+@if (forecasts == null)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else if (forecasts?.Count > 0)
+{
+    <MudTable Items="forecasts" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+        <HeaderContent>
+            <MudTh>City</MudTh>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="forecast">
+            <MudTd>@forecast.Name</MudTd>
+            <MudTd>@forecast.Date.ToShortDateString()</MudTd>
+            <MudTd>@forecast.TemperatureC</MudTd>
+            <MudTd>@forecast.TemperatureF</MudTd>
+            <MudTd>@forecast.Summary</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else
+{
+    <MudText Class="mb-8">No forecasts available. Please enter a city.</MudText>
+}
+@if (!islogin)
+{
+    <MudText Align="Align.Center" Typo="Typo.h6" GutterBottom="true"><MudLink Href="/" Color="Color.Primary" Typo="Typo.h6">Login</MudLink> to add Favorite city </MudText>
+
+}
+
+@if (favoriteCitiesForecasts != null && favoriteCitiesForecasts.Count > 0)
+{
+    <MudText Typo="Typo.h4" GutterBottom="true">Favorite Cities</MudText>
+
+    <MudTable Items="favoriteCitiesForecasts" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+        <HeaderContent>
+            <MudTh>City</MudTh>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        
+        <RowTemplate Context="forecast">
+            <MudTd>@forecast.Name</MudTd>
+            <MudTd>@forecast.Date.ToShortDateString()</MudTd>
+            <MudTd>@forecast.TemperatureC</MudTd>
+            <MudTd>@forecast.TemperatureF</MudTd>
+            <MudTd>@forecast.Summary</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+}
+
+
+<MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Success">@favoriteMessage</MudText>
+
+@code {
+    public List<WeatherForecast> forecasts = new();
+    public List<WeatherForecast> favoriteCitiesForecasts = new(); 
+    public string cityName = string.Empty;
+    public bool isLoading = false;
+    private bool isFavorite = false;
+    private string favoriteMessage = string.Empty;
+    private bool islogin = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavoriteCitiesWeather();
+    }
+
+    public async Task LoadFavoriteCitiesWeather()
+    {
+        try
+        {
+            var user = await RegisterService.GetUserAsync(NameOfUser.Name);
+            if (user != null && user.FavCity != null && user.FavCity.Count > 0)
+            {
+                foreach (var city in user.FavCity)
+                {
+                    var forecast = await ForecastService.GetForecastAsync(city);
+                    if (forecast != null && forecast.Count > 0)
+                    {
+                        favoriteCitiesForecasts.Add(forecast[0]); 
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            favoriteMessage = $"Error loading favorite cities: {ex.Message}";
+        }
+    }
+
+    public async Task OnSub()
+    {
+        isLoading = true;
+        if (!string.IsNullOrWhiteSpace(cityName))
+        {
+            forecasts = await ForecastService.GetForecastAsync(cityName);
+        }
+        isLoading = false;
+    }
+
+    private string FavButtonIcon => isFavorite ? Icons.Material.Rounded.Favorite : Icons.Material.Rounded.FavoriteBorder;
+
+    private async void ToggleFavorite()
+    {
+        if (forecasts.Count != 0)
+        {
+            favoriteMessage = "";
+            isFavorite = !isFavorite;
+
+            if (string.IsNullOrEmpty(NameOfUser?.Name))
+            {
+                islogin = false;
+                return;
+            }
+
+            if (isFavorite)
+            {
+                try
+                {
+                    favoriteMessage = $"{cityName} has been added to your favorites!";
+                    await RegisterService.AddCityToFavoritesAsync(NameOfUser.Name, cityName);
+                    
+                }
+                catch (Exception ex)
+                {
+                    favoriteMessage = $"Error adding favorite: {ex.Message}";
+                }
+            }
+        }
+        else
+        {
+            favoriteMessage = "Enter City Name!!!";
+        }
+    }
+}

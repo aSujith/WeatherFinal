@@ -1,0 +1,104 @@
+﻿@page "/"
+@layout LoginLayout
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+@using WeatherFinal.Components.Layout
+@using WeatherFinal.Components.Service
+@using WeatherFinal.Components.Models
+@inject LoginService LoginService
+@inject UserValidationService UserValidationService
+@inject NavigationManager NavigationManager
+@inject NameOfUser NameOfUser
+
+
+
+
+
+<PageTitle>Login</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Login</MudText>
+
+@* <MudTextField Label="Email" @bind-Value="email" Variant="Variant.Outlined" Placeholder="Enter Username" AdornmentIcon="@Icons.Material.Filled.Person" Class="mb-2" /> *@
+<MudTextField Label="User Name" @bind-Value="username" Variant="Variant.Outlined" Placeholder="Enter Username" AdornmentIcon="@Icons.Material.Filled.Person" Class="mb-2" />
+<MudTextField Label="Password" @bind-Value="password" Variant="Variant.Outlined" Placeholder="Enter Password" AdornmentIcon="@Icons.Material.Filled.Lock" Class="mb-2" InputType="InputType.Password" />
+
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="PerformLogin">Login</MudButton>
+<MudText>Not having an account? <MudLink Href="/register" Color="Color.Primary">Sign Up</MudLink></MudText>
+
+
+<MudText Typo="Typo.body1" Color="Color.Success">@message</MudText>
+
+ @* <MudText Typo="Typo.body1" Color="Color.Success">@successMessage</MudText> *@
+<MudText Typo="Typo.body1" Color="Color.Error">@errorMessage</MudText>
+
+@code {
+    // private string email = string.Empty;
+    private string username = string.Empty;
+    private string password = string.Empty;
+    
+    private string errorMessage = string.Empty;
+    private string message = string.Empty;
+
+    private async Task PerformLogin()
+    {
+        errorMessage = string.Empty;
+        message = string.Empty;
+
+
+        var success = await LoginService.AuthenticateUserAsync(username, password);
+
+        if (success)
+        {
+            message = "Login successful!";
+            Console.WriteLine(message);
+            NameOfUser.Name = username;
+            NavigationManager.NavigateTo("/weather");
+
+        }
+        else
+        {
+            
+            errorMessage = "Invalid username or password!";
+            Console.WriteLine(errorMessage);
+        }
+    }
+
+    // private string email = string.Empty;
+    // private string password = string.Empty;
+    // private string successMessage = string.Empty;
+    // private string errorMessage = string.Empty;
+
+    // private async Task PerformLogin()
+    // {
+    //     try
+    //     {
+    //         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+    //         {
+    //             errorMessage = "Email and Password are required.";
+    //             successMessage = string.Empty;
+    //             return;
+    //         }
+
+    //         bool isAuthenticated = await UserValidationService.SignInAsync(email, password);
+
+    //         if (isAuthenticated)
+    //         {
+    //             successMessage = "Login successful!";
+    //             errorMessage = string.Empty;
+
+    //             NavigationManager.NavigateTo("/weather");
+    //         }
+    //         else
+    //         {
+    //             errorMessage = "Invalid email or password.";
+    //             successMessage = string.Empty;
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         errorMessage = $"An error occurred: {ex.Message}";
+    //         successMessage = string.Empty;
+    //     }
+    // }
+}

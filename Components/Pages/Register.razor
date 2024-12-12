@@ -1,0 +1,85 @@
+﻿@page "/register"
+ @layout LoginLayout
+@using MongoDB.Driver
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+@using WeatherFinal.Components.Layout
+@using WeatherFinal.Components.Service
+@using WeatherFinal.Components.Models
+@inject RegisterService RegisterService
+@inject UserValidationService UserValidationService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Insert Data</PageTitle>
+<MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
+
+ <MudTextField Label="Name" @bind-Value="register.Name" Variant="Variant.Outlined" Placeholder="Enter Name" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-2" />
+<MudTextField Label="Email" @bind-Value="register.Email" Variant="Variant.Outlined" Placeholder="Enter Email" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-2" />
+<MudTextField Label="Password" @bind-Value="register.Password" Variant="Variant.Outlined" Placeholder="Enter Password" AdornmentIcon="@Icons.Material.Filled.Lock" Class="mb-2" InputType="InputType.Password" />
+<MudTextField Label="Confirm Password" @bind-Value="confirmPassword" Variant="Variant.Outlined" Placeholder="Confirm Password" AdornmentIcon="@Icons.Material.Filled.Lock" Class="mb-2" InputType="InputType.Password" />
+
+<MudTextField Label="Phone no." @bind-Value="register.Phone" Variant="Variant.Outlined" Placeholder="Enter Phone" AdornmentIcon="@Icons.Material.Filled.Search" Class="mb-4" />
+
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="InsertData">Submit</MudButton>
+<MudText>Already have an account? <MudLink Href="/" Color="Color.Primary">Sign In</MudLink></MudText>
+
+<MudText Typo="Typo.body1" Color="Color.Success">@message</MudText>
+<MudText Typo="Typo.body1" Color="Color.Error">@errorMessage</MudText>
+
+@code {
+    private RegisterModel register = new RegisterModel();
+    private string confirmPassword = string.Empty;
+    private string message = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private async Task InsertData()
+    {
+        errorMessage = string.Empty;
+
+        if (register.Password != confirmPassword)
+        {
+            errorMessage = "Passwords do not match!";
+            return;
+        }
+        await RegisterService.InsertDataAsync(register);
+        message = "Data inserted successfully!";
+        NavigationManager.NavigateTo("/");
+    }
+    // private SupabaseModel register = new SupabaseModel();
+
+    // private string confirmPassword = string.Empty;
+    // private string message = string.Empty;
+    // private string errorMessage = string.Empty;
+
+    // private async Task InsertData()
+    // {
+    //     if (string.IsNullOrWhiteSpace(register.Email) || string.IsNullOrWhiteSpace(register.Password))
+    //     {
+    //         errorMessage = "Email and Password are required.";
+    //         message = string.Empty;
+    //         return;
+    //     }
+
+    //     if (register.Password != confirmPassword)
+    //     {
+    //         errorMessage = "Passwords do not match.";
+    //         message = string.Empty;
+    //         return;
+    //     }
+
+    //     try
+    //     {
+    //         await UserValidationService.InsertDataAsync(register);
+    //         message = "Signup successful!";
+    //         errorMessage = string.Empty;
+
+    //         NavigationManager.NavigateTo("/");
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         errorMessage = $"An error occurred: {ex.Message}";
+    //         message = string.Empty;
+    //     }
+    // }
+}

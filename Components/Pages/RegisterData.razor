@@ -1,0 +1,40 @@
+﻿@page "/RegisterData"
+@using WeatherFinal.Components.Models
+@using WeatherFinal.Components.Service
+
+<PageTitle>Register Data</PageTitle>
+<MudText Typo="Typo.h3" GutterBottom="true">Register Data</MudText>
+
+@if (register == null || !register.Any())
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="register" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Password</MudTh>
+            <MudTh>Phone</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="forecast">
+            <MudTd>@forecast.Name</MudTd>
+            <MudTd>@forecast.Email  </MudTd>
+            <MudTd>@forecast.Password</MudTd>
+            <MudTd>@forecast.Phone</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<RegisterModel> register = new();
+
+    [Inject]
+    private RegisterService RegisterService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        register = await RegisterService.GetDataAsync();
+    }
+}

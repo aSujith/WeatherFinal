@@ -1,0 +1,21 @@
+﻿@page "/counter"
+@rendermode InteractiveServer
+@using WeatherFinal.Components.Models
+@inject CurrentCount Current
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @Current.current</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    
+    private void IncrementCount()
+    {
+        Current.current++;
+    }
+   
+}

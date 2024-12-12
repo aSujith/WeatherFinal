@@ -1,0 +1,41 @@
+﻿@page "/Data"
+@using WeatherFinal.Components.Models
+@using WeatherFinal.Components.Service
+
+<PageTitle>MongoData</PageTitle>
+<MudText Typo="Typo.h3" GutterBottom="true">MongoData</MudText>
+<MudText Class="mb-8">This component demonstrates fetching data from MongoDB.</MudText>
+
+@if (weather == null || !weather.Any())
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="weather" Hover="true" SortLabel="Sort By" Elevation="0" AllowUnsorted="false">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>City</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="forecast">
+            <MudTd>@forecast.Date</MudTd>
+            <MudTd>@forecast.City</MudTd>
+            <MudTd>@forecast.Temp_C.ToString("F1")</MudTd>
+            <MudTd>@forecast.Summery</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private List<WeatherModel> weather = new();
+
+    [Inject]
+    private WeatherService WeatherService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        weather = await WeatherService.GetweathersAsync();
+    }
+}
