@@ -10,7 +10,7 @@ namespace WeatherFinal.Components.Service
 
             //openweather API
 
-            string your_api_key = "0ef163157c35d4eb8b15a898120f8b77";
+            string your_api_key = "YOUR-API-KEY";
             HttpClient cl = new HttpClient() { BaseAddress = new Uri("http://api.openweathermap.org") };
             var response = await cl.GetFromJsonAsync<Root>($"/data/2.5/weather?q={city}&appid={your_api_key}");
 
