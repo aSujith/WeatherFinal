@@ -6,7 +6,7 @@ namespace WeatherFinal.Components.Service
     public class UserValidationService
     {
         
-        private const string ApiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2d2plbXBpeXh1ZGV6dndwaWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3Mzc0MDMsImV4cCI6MjA0NzMxMzQwM30.1anXwt4Mv-4up4OFomG2udUOQoG_62opwYuia64sETk";
+        private const string ApiKey = "YOUR-SUPABASE-API-KEY";
         private const string BaseUrl = "https://hvwjempiyxudezvwpici.supabase.co";
 
         private readonly HttpClient _httpClient;
